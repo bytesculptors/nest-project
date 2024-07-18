@@ -1,0 +1,33 @@
+version: "3"
+
+services:
+  postgres:
+    container_name: lito-db
+    image: postgres:16-alpine
+    deploy:
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          memory: 128Mb
+    ports:
+      - "5432:5432"
+    command: -c shared_buffers=500MB -c fsync=off
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-pg}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pg}
+      POSTGRES_DB: ${POSTGRES_DB:-}
+    healthcheck:
+      # start_period: 5s
+      test: "pg_isready"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - lito
+
+networks:
+  lito:
+
+volumes:
+  postgres_data:
+    driver: local
